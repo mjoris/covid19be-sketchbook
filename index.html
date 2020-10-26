@@ -8,19 +8,44 @@
 
   <!--Let browser know website is optimized for mobile-->
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    nav {
+      background-color: #2a9a9e;
+    }
+    #tabs {
+      margin: 0 auto !important;
+      max-width: 80rem !important;
+      min-width: 40rem !important ;
+    }
+  </style>
 </head>
 
 <body>
+
+
   <div id="tabs" class="section scrollspy">
-    <div class="row">
+    <div class="row">      
+      <div class="col s12">
+        <nav>
+          <div class="nav-wrapper">
+            <a href="#" class="brand-logo right">Stats Covid-19 Belgi&euml;</a>
+            <ul class="left">
+              <li class="active"><a href="index.html">Hospitalisaties per gewest</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+
       <div class="col s12 m12">
-        <h3 class="header">Statistieken Covid-19 Belgi&euml;</h3>
+        <!--h3 class="header">Statistieken Covid-19 Belgi&euml;</h3-->
         <p class="caption">Data: Sciensano, Produced with Plotly, (CC) mjoris, CC BY-ND 2.0.</p>
       </div>
+      <div class="col s12 m12">
+        <iframe  style="height: 35rem; max-width: 75rem; width:100%;" src="hosp-fla.html" frameborder="0" allowfullscreen></iframe>
+        <iframe  style="height: 35rem; max-width: 75rem; width:100%;" src="hosp-bru.html" frameborder="0" allowfullscreen></iframe>
+        <iframe  style="height: 35rem; max-width: 75rem; width:100%;" src="hosp-wal.html" frameborder="0" allowfullscreen></iframe>
+      </div>
     </div>
-    <iframe  style="height: 35rem; max-width: 75rem; width:100%;" src="hosp-fla.html" frameborder="0" allowfullscreen></iframe>
-    <iframe  style="height: 35rem; max-width: 75rem; width:100%;" src="hosp-bru.html" frameborder="0" allowfullscreen></iframe>
-    <iframe  style="height: 35rem; max-width: 75rem; width:100%;" src="hosp-wal.html" frameborder="0" allowfullscreen></iframe>
   </div>
 
 
