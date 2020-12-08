@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+          media="screen,projection"/>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        nav {
+            background-color: #2a9a9e;
+        }
+        #tabs {
+            margin: 0 auto !important;
+            max-width: 80rem !important;
+            min-width: 40rem !important;
+        }
+    </style>
+</head>
+
+<body>
+<div id="tabs" class="section scrollspy">
+    <div class="row">
+        <div class="col s12">
+            <nav>
+                <div class="nav-wrapper">
+                    <a href="#" class="sidenav-trigger hide-on-med-and-up" data-target="mobile-nav">
+                        <i class="material-icons">menu</i>
+                    </a>
+                    <a href="#" class="brand-logo right">Stats Covid-19 Belgi&euml;</a>
+                    <ul class="left hide-on-small-only">
+                        <li class="active"><a href="#bel">Hospitalisaties</a></li>
+                    </ul>
+                </div>
+
+            </nav>
+            <ul class="sidenav" id="mobile-nav">
+                <li class="active"><a href="#bel">Hospitalisaties</a></li>
+            </ul>
+        </div>
+
+        <div class="col s12 m12">
+            <!--h3 class="header">Statistieken Covid-19 Belgi&euml;</h3-->
+            <p class="caption" style="font-weight: 600;">
+                <a href="#bel" class="hosp-anchor">België</a>
+                &bullet;
+                <a href="#fla" class="hosp-anchor">Vlaanderen</a>
+                &bullet;
+                <a href="#wal" class="hosp-anchor">Wallonië</a>
+                &bullet;
+                <a href="#bru" class="hosp-anchor">Brussel</a>
+                <br>
+                <a href="#ant" class="hosp-anchor">Antwerpen</a>
+                &bullet;
+                <a href="#hai" class="hosp-anchor">Henegouwen</a>
+                &bullet;
+                <a href="#lim" class="hosp-anchor">Limburg</a>
+                &bullet;
+                <a href="#lie" class="hosp-anchor">Luik</a>
+                &bullet;
+                <a href="#lux" class="hosp-anchor">Luxemburg</a>
+                &bullet;
+                <a href="#nam" class="hosp-anchor">Namen</a>
+                &bullet;
+                <a href="#ovl" class="hosp-anchor">Oost-Vlaanderen</a>
+                &bullet;
+                <a href="#vbr" class="hosp-anchor">Vlaams-Brabant</a>
+                &bullet;
+                <a href="#brw" class="hosp-anchor">Waals-Brabant</a>
+                &bullet;
+                <a href="#wvl" class="hosp-anchor">West-Vlaanderen</a>
+            </p>
+            <p class="caption">Data: Sciensano, Produced with Papa Parse &amp; Chart.js, (CC) mjoris, CC BY-ND 2.0.</p>
+        </div>
+        <div class="col s12 m12">
+            <canvas id="bar-chart-hosp" width="800" height="450"></canvas>
+        </div>
+    </div>
+</div>
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var elems = document.querySelectorAll('.sidenav');
+        var instances = M.Sidenav.init(elems, {});
+    });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js"></script>
+<script src="papaparse.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let hospitalisations = [];
+
+        let csv = Papa.parse('https://epistat.sciensano.be/Data/COVID19BE_HOSP.csv', {
+            download: true,
+            header: true,
+            delimiter: ',',
+            complete: function(results) {
+                hospitalisations = results.data;
+                handleHash(location.hash || '#bel');
+            }
+        });
+
+        let handleHash = function (hash) {
+            switch(hash) {
+                case '#bel':
+                    loadHospitalisations(function(line) {return true;}, 'België');
+                    break;
+                case '#fla':
+                    loadHospitalisations(function(line) {return (line.REGION == 'Flanders');}, 'Vlaams Gewest');
+                    break;
+                case '#wal':
+                    loadHospitalisations(function(line) {return (line.REGION == 'Wallonia');}, 'Waals Gewest');
+                    break;
+                case '#bru':
+                    loadHospitalisations(function(line) {return (line.REGION == 'Brussels');}, 'Brussels Hoofdstedelijk Gewest');
+                    break;
+                case '#ovl':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'OostVlaanderen');}, 'provincie Oost-Vlaanderen');
+                    break;
+                case '#lim':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'Limburg');}, 'provincie Limburg');
+                    break;
+                case '#wvl':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'WestVlaanderen');}, 'provincie West-Vlaanderen');
+                    break;
+                case '#ant':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'Antwerpen');}, 'provincie Antwerpen');
+                    break;
+                case '#lie':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'Liège');}, 'provincie Luik');
+                    break;
+                case '#hai':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'Hainaut');}, 'provincie Henegouwen');
+                    break;
+                case '#lux':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'Luxembourg');}, 'provincie Luxemburg');
+                    break;
+                case '#nam':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'Namur');}, 'provincie Namen');
+                    break;
+                case '#vbr':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'VlaamsBrabant');}, 'provincie Vlaams-Brabant');
+                    break;
+                case '#brw':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'BrabantWallon');}, 'provincie Waals-Brabant');
+                    break;
+                default:
+            }
+
+        }
+
+        let loadHospitalisations = function (filter, name) {
+            let icu = [];
+            let notIcu = [];
+            let lastDate = '';
+            for (i = 0; i < hospitalisations.length; ++i) {
+                let line = hospitalisations[i];
+                if (filter(line)) {
+                    if (line.DATE != lastDate) {
+                        if (line.DATE) {
+                            icu.push({t: line.DATE, y: parseInt(line.TOTAL_IN_ICU)});
+                            notIcu.push({t: line.DATE, y: (parseInt(line.TOTAL_IN) - parseInt(line.TOTAL_IN_ICU))});
+                        }
+                    } else {
+                        icu[icu.length - 1].y += parseInt(line.TOTAL_IN_ICU);
+                        notIcu[notIcu.length - 1].y += (parseInt(line.TOTAL_IN) - parseInt(line.TOTAL_IN_ICU));
+                    }
+                    lastDate = line.DATE;
+                }
+            }
+            lastDate = icu[icu.length - 1].t;
+            hospChart.data.datasets[0].data = icu;
+            hospChart.data.datasets[1].data = notIcu;
+            hospChart.options.title.text = 'Covid-19 hospitalisaties ziekenhuizen in ' + name + ' t.e.m. ' + lastDate;
+            hospChart.update();
+        };
+
+
+        let hospChart = new Chart(document.getElementById("bar-chart-hosp"), {
+            type: 'bar',
+            data: {
+                datasets: [
+                    {
+                        label: "Totaal intensieve zorg",
+                        backgroundColor:  '#c45850',
+                        data: []
+                    },
+                    {
+                        label: "Totaal niet-intensieve zorg",
+                        backgroundColor: '#2a9a9e',
+                        data: []
+                    }
+
+                ]
+            },
+            options: {
+                legend: {display: false},
+                title: {
+                    display: true,
+                    text: 'in opbouw'
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            parser: 'YYYY-MM-DD',
+                            unit: 'day'
+                        },
+                        stacked: true
+                    }],
+                    yAxes: [{
+                        stacked: true
+                    }]
+                },
+                responsive: true
+            }
+        });
+        let hospLinks = document.querySelectorAll('.hosp-anchor');
+
+        for (let i = 0; i < hospLinks.length; i++) {
+            hospLinks[i].addEventListener('click', function(e) {
+                handleHash(e.target.hash);
+            });
+        }
+
+    });
+</script>
+</body>
+</html>
