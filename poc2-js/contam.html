@@ -1,0 +1,248 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="description" content="">
+    <meta name="author" content="mjoris">
+
+
+    <title>covid19be-sketchbook</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        .navbar {
+            margin-bottom: 30px;
+        }
+
+        footer {
+            margin-top: 30px;
+        }
+
+        footer p {
+            width: 100%;
+            background-color: #f8f8f8;
+        }
+
+        #content .map path {
+            stroke: #fff;
+            stroke-width: 0.3;
+        }
+
+        #content {
+            background-color: #fbfbfb;
+        }
+
+        .d3-tip {
+            line-height: 1;
+            padding: 6px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Creates a small triangle extender for the tooltip */
+        .d3-tip:after {
+            box-sizing: border-box;
+            display: inline;
+            font-size: 10px;
+            width: 100%;
+            line-height: 1;
+            color: rgba(0, 0, 0, 0.8);
+            content: "\25BC";
+            position: absolute;
+            text-align: center;
+        }
+
+        /* Style northward tooltips specifically */
+        .d3-tip.n:after {
+            margin: -2px 0 0 0;
+            top: 100%;
+            left: 0;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <!-- Static navbar -->
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">covid19be-sketchbook</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Hospitalisaties <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.html#bel" class="hosp-anchor">Belgi&euml;</a></li>
+
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">gewesten</li>
+                            <li><a href="index.html#fla" class="hosp-anchor">Vlaanderen</a></li>
+                            <li><a href="index.html#wal" class="hosp-anchor">Walloni&euml;</a></li>
+                            <li><a href="index.html#bru" class="hosp-anchor">Brussel</a></li>
+
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">provincies</li>
+                            <li><a href="index.html#ant" class="hosp-anchor">Antwerpen</a></li>
+                            <li><a href="index.html#hai" class="hosp-anchor">Henegouwen</a></li>
+                            <li><a href="index.html#lim" class="hosp-anchor">Limburg</a></li>
+                            <li><a href="index.html#lie" class="hosp-anchor">Luik</a></li>
+                            <li><a href="index.html#lux" class="hosp-anchor">Luxemburg</a></li>
+                            <li><a href="index.html#nam" class="hosp-anchor">Namen</a></li>
+                            <li><a href="index.html#ovl" class="hosp-anchor">Oost-Vlaanderen</a></li>
+                            <li><a href="index.html#vbr" class="hosp-anchor">Vlaams-Brabant</a></li>
+                            <li><a href="index.html#brw" class="hosp-anchor">Waals-Brabant</a></li>
+                            <li><a href="index.html#wvl" class="hosp-anchor">West-Vlaanderen</a></li>
+                        </ul>
+                        <li><a href="contam.html" class="active">Besmettingen</a></li>
+                    </li>
+                </ul>
+                <!--ul class="nav navbar-nav navbar-right">
+                    <li class="active"><a href="./">Default <span class="sr-only">(current)</span></a></li>
+                    <li><a href="../navbar-static-top/">Static top</a></li>
+                    <li><a href="../navbar-fixed-top/">Fixed top</a></li>
+                </ul-->
+            </div>
+        </div>
+    </nav>
+
+
+
+    <div id="mapcontainer">
+        <svg id="content" width="100%" height="600">
+            <g class="map"></g>
+        </svg>
+    </div>
+
+</div> <!-- /container -->
+<footer class="footer mt-auto py-3">
+    <div class="container">
+        <p class="text-muted">&nbsp;&copy; mjoris &mdash; Data: Sciensano, Produced with d3js.org, CC BY-ND 2.0.</p>
+    </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
+<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+<script src="js/d3-tip.js"></script>
+<script src="js/geobelgium.js"></script>
+<script>
+
+    let data = d3.map();
+
+    d3.queue()
+        .defer(d3.csv, "https://epistat.sciensano.be/Data/COVID19BE_CASES_MUNI_CUM.csv", function(d) { data.set(d.NIS5, d); })
+        .await(ready);
+
+    function ready(error, topo) {
+        draw();
+    }
+
+    function draw() {
+        d3.select('#content g.map')
+            .selectAll('path')
+            .data(geoBelgium.features).enter()
+            .append('path')
+            .attr('d', geoGenerator)
+
+                .attr("fill", function (d) {
+                d.total = data.get(d.properties.index).CASES || 0;
+                if (data.get(d.properties.index) === undefined)
+                    console.log(d.properties.index);
+                return colorScale(d.total);
+            })
+            .on('mouseover', toolTip.show)
+            .on('mouseout', toolTip.hide);
+        /*.call(d3.zoom().on('zoom', function () {
+            svg.attr('transform', d3.event.transform)
+        }))*/
+    }
+
+
+    let toolTip = d3.tip()
+        .attr('class', 'd3-tip')
+        .offset([6, 0])
+        .html(function(d) {
+            /*var dataRow = countryById.get(d.properties.name);
+            if (dataRow) {
+                console.log(dataRow);
+                return dataRow.states + ": " + dataRow.mortality;
+            } else {
+                console.log("no dataRow", d);
+                return d.properties.name + ": No data.";
+            }*/
+            let dataRow = data.get(d.properties.index);
+
+            return dataRow.TX_DESCR_NL + '<br>' + dataRow.CASES  + " gevallen";
+        });
+
+    // The svg
+    let svg = d3.select("svg");
+    let container = d3.select("#mapcontainer").node();
+    let width = container.getBoundingClientRect().width;
+    let height = container.getBoundingClientRect().height;
+
+    svg.call(toolTip);
+
+    // Projection
+    let projection = d3.geoMercator()
+        .scale(Math.min(10000, width * 13.33))
+        .center([4.5,50.5])
+        .translate([width / 2, height / 2]);
+
+    var colorScale = d3.scaleThreshold()
+        .domain([10, 100, 1000, 3000, 10000, 500000000])
+        .range(d3.schemeBlues[7]);
+
+    var geoGenerator = d3.geoPath()
+        .projection(projection);
+
+    function redraw() {
+        width = container.getBoundingClientRect().width;
+        height = container.getBoundingClientRect().height;
+        projection
+            .scale(Math.min(10000, width * 13.33))
+            .translate([width / 2, height / 2]);
+        d3.select('#content g.map').selectAll('path').remove();
+        draw();
+    }
+
+    var throttleTimer;
+    function throttle() {
+        window.clearTimeout(throttleTimer);
+        throttleTimer = window.setTimeout(function() {
+            redraw();
+        }, 100);
+    }
+    d3.select(window).on("resize", throttle);
+
+</script>
+
+</body>
+</html>

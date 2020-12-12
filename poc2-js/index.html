@@ -1,0 +1,254 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="description" content="">
+    <meta name="author" content="mjoris">
+
+
+    <title>covid19be-sketchbook</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        .navbar {
+            margin-bottom: 30px;
+        }
+
+        footer {
+            margin-top: 30px;
+        }
+
+        footer p {
+            width: 100%;
+            background-color: #f8f8f8;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <!-- Static navbar -->
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">covid19be-sketchbook</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle active" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Hospitalisaties <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#bel" class="hosp-anchor">Belgi&euml;</a></li>
+
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">gewesten</li>
+                            <li><a href="#fla" class="hosp-anchor">Vlaanderen</a></li>
+                            <li><a href="#wal" class="hosp-anchor">Walloni&euml;</a></li>
+                            <li><a href="#bru" class="hosp-anchor">Brussel</a></li>
+
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">provincies</li>
+                            <li><a href="#ant" class="hosp-anchor">Antwerpen</a></li>
+                            <li><a href="#hai" class="hosp-anchor">Henegouwen</a></li>
+                            <li><a href="#lim" class="hosp-anchor">Limburg</a></li>
+                            <li><a href="#lie" class="hosp-anchor">Luik</a></li>
+                            <li><a href="#lux" class="hosp-anchor">Luxemburg</a></li>
+                            <li><a href="#nam" class="hosp-anchor">Namen</a></li>
+                            <li><a href="#ovl" class="hosp-anchor">Oost-Vlaanderen</a></li>
+                            <li><a href="#vbr" class="hosp-anchor">Vlaams-Brabant</a></li>
+                            <li><a href="#brw" class="hosp-anchor">Waals-Brabant</a></li>
+                            <li><a href="#wvl" class="hosp-anchor">West-Vlaanderen</a></li>
+                        </ul>
+                        <li><a href="contam.html">Besmettingen</a></li>
+                    </li>
+                </ul>
+                <!--ul class="nav navbar-nav navbar-right">
+                    <li class="active"><a href="./">Default <span class="sr-only">(current)</span></a></li>
+                    <li><a href="../navbar-static-top/">Static top</a></li>
+                    <li><a href="../navbar-fixed-top/">Fixed top</a></li>
+                </ul-->
+            </div>
+        </div>
+    </nav>
+
+
+
+    <div class="container-fluid">
+        <canvas id="bar-chart-hosp" width="800" height="400"></canvas>
+    </div>
+
+</div> <!-- /container -->
+<footer class="footer mt-auto py-3">
+    <div class="container">
+        <p class="text-muted">&nbsp;&copy; mjoris &mdash; Data: Sciensano, Produced with Papa Parse & Chart.js, CC BY-ND 2.0.</p>
+    </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
+<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js"></script>
+<script src="js/papaparse.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let hospitalisations = [];
+
+        let csv = Papa.parse('https://epistat.sciensano.be/Data/COVID19BE_HOSP.csv', {
+            download: true,
+            header: true,
+            delimiter: ',',
+            complete: function(results) {
+                hospitalisations = results.data;
+                handleHash(location.hash || '#bel');
+            }
+        });
+
+        let handleHash = function (hash) {
+            switch(hash) {
+                case '#bel':
+                    loadHospitalisations(function(line) {return true;}, 'België');
+                    break;
+                case '#fla':
+                    loadHospitalisations(function(line) {return (line.REGION == 'Flanders');}, 'Vlaams Gewest');
+                    break;
+                case '#wal':
+                    loadHospitalisations(function(line) {return (line.REGION == 'Wallonia');}, 'Waals Gewest');
+                    break;
+                case '#bru':
+                    loadHospitalisations(function(line) {return (line.REGION == 'Brussels');}, 'Brussels Hoofdstedelijk Gewest');
+                    break;
+                case '#ovl':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'OostVlaanderen');}, 'provincie Oost-Vlaanderen');
+                    break;
+                case '#lim':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'Limburg');}, 'provincie Limburg');
+                    break;
+                case '#wvl':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'WestVlaanderen');}, 'provincie West-Vlaanderen');
+                    break;
+                case '#ant':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'Antwerpen');}, 'provincie Antwerpen');
+                    break;
+                case '#lie':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'Liège');}, 'provincie Luik');
+                    break;
+                case '#hai':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'Hainaut');}, 'provincie Henegouwen');
+                    break;
+                case '#lux':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'Luxembourg');}, 'provincie Luxemburg');
+                    break;
+                case '#nam':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'Namur');}, 'provincie Namen');
+                    break;
+                case '#vbr':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'VlaamsBrabant');}, 'provincie Vlaams-Brabant');
+                    break;
+                case '#brw':
+                    loadHospitalisations(function(line) {return (line.PROVINCE == 'BrabantWallon');}, 'provincie Waals-Brabant');
+                    break;
+                default:
+            }
+
+        }
+
+        let loadHospitalisations = function (filter, name) {
+            let icu = [];
+            let notIcu = [];
+            let lastDate = '';
+            for (i = 0; i < hospitalisations.length; ++i) {
+                let line = hospitalisations[i];
+                if (filter(line)) {
+                    if (line.DATE != lastDate) {
+                        if (line.DATE) {
+                            icu.push({t: line.DATE, y: parseInt(line.TOTAL_IN_ICU)});
+                            notIcu.push({t: line.DATE, y: (parseInt(line.TOTAL_IN) - parseInt(line.TOTAL_IN_ICU))});
+                        }
+                    } else {
+                        icu[icu.length - 1].y += parseInt(line.TOTAL_IN_ICU);
+                        notIcu[notIcu.length - 1].y += (parseInt(line.TOTAL_IN) - parseInt(line.TOTAL_IN_ICU));
+                    }
+                    lastDate = line.DATE;
+                }
+            }
+            lastDate = icu[icu.length - 1].t;
+            hospChart.data.datasets[0].data = icu;
+            hospChart.data.datasets[1].data = notIcu;
+            hospChart.options.title.text = 'Covid-19 hospitalisaties ziekenhuizen in ' + name + ' t.e.m. ' + lastDate;
+            hospChart.update();
+        };
+
+
+        let hospChart = new Chart(document.getElementById("bar-chart-hosp"), {
+            type: 'bar',
+            data: {
+                datasets: [
+                    {
+                        label: "Totaal intensieve zorg",
+                        backgroundColor:  '#c45850',
+                        data: []
+                    },
+                    {
+                        label: "Totaal niet-intensieve zorg",
+                        backgroundColor: '#2a9a9e',
+                        data: []
+                    }
+
+                ]
+            },
+            options: {
+                legend: {display: false},
+                title: {
+                    display: true,
+                    text: 'in opbouw'
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            parser: 'YYYY-MM-DD',
+                            unit: 'day'
+                        },
+                        stacked: true
+                    }],
+                    yAxes: [{
+                        stacked: true
+                    }]
+                },
+                responsive: true
+            }
+        });
+        let hospLinks = document.querySelectorAll('.hosp-anchor');
+
+        for (let i = 0; i < hospLinks.length; i++) {
+            hospLinks[i].addEventListener('click', function(e) {
+                handleHash(e.target.hash);
+            });
+        }
+
+    });
+</script>
+
+
+
+</body>
+</html>
